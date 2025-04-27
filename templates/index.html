@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>polyglotAI</title>
+</head>
+<header>    <div id="intro">polyglotAI is made for people who needs translation from a certain language they don't know and give example of how to use that word.
+     It can also be used to decypher words that were written wrong </div>
+</header>
+<body>
+
+    <div class="chat-container">
+        <h1>polyglotAI</h1>
+        <div id="chat-box">
+        <form id="chat-form">
+            <input type="text" id="user-input" placeholder="Type your message here" required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = userInput.value;
+            appendMessage('You', message);
+            userInput.value = '';
+    
+            try {
+                const response = await fetch('/ask',{
+                    method: 'POST',
+                    headers: { 'Content-Type':'application/json'},
+                    body: JSON.stringify({ message})
+                });
+                
+                const data = await response.json();
+                if(data.response){
+                    appendMessage('Polyglot',data.response)
+                }else{
+                    appendMessage('Error','Try again')
+                }
+    
+            } catch (error){
+                appendMessage('Error','Could not connect to the server')
+            }
+        });
+    
+        function appendMessage(sender,message){
+            const messageDIV= document.createElement('div');
+            messageDIV.classList.add('message');
+            messageDIV.innerHTML = `<strong>${sender}:<strong> ${message}`;
+            chatBox.appendChild(messageDIV);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        </script>
+</body>
+</html>
